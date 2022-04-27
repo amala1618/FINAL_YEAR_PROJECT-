@@ -1,0 +1,112 @@
+/*
+struct tnode* makeLeafNode(int n)
+{
+	    struct tnode *temp;
+	    temp = (struct tnode*)malloc(sizeof(struct tnode));
+	    temp->op = NULL;
+	    temp->val = n;
+	    temp->left = NULL;
+	    temp->right = NULL;
+	    return temp;
+}
+
+struct tnode* makeOperatorNode(char c,struct tnode *l,struct tnode *r){
+	    struct tnode *temp;
+	    temp = (struct tnode*)malloc(sizeof(struct tnode));
+	    temp->op = malloc(sizeof(char));
+	    *(temp->op) = c;
+	    temp->left = l;
+	    temp->right = r;
+	    return temp;
+}*/
+
+struct tnode* createTree(int v, int t, char* vn, int nt, struct tnode *l, struct tnode *r){
+        struct tnode *temp;
+	temp = (struct tnode*)malloc(sizeof(struct tnode));
+	temp->val=v;
+	temp->type=t;
+	temp->varname = vn;
+	temp->varname=vn;
+        temp->nodetype=nt;
+	temp->left=l;
+	temp->right=r;
+	return temp;
+	
+
+}
+
+int evaluate(struct tnode *t){
+	    if(t->nodetype == 7)
+		        {
+				return t->val;
+		    	}
+	    else{
+		    switch((t->nodetype)){
+			    case 3 : return evaluate(t->left) + evaluate(t->right);
+				       break;
+			    case 4 : return evaluate(t->left) - evaluate(t->right);
+				       break;
+			    case 5 : return evaluate(t->left) * evaluate(t->right);
+				       break;
+			    case 6 : return evaluate(t->left) / evaluate(t->right);
+				       break;
+		    }
+	    }
+}
+
+int get_index=1;
+
+int getReg(){
+	   get_index++;
+	   return get_index;
+
+}
+
+void freeReg(){
+	   get_index--; 
+}
+int codeGen(struct tnode *t, FILE *target_file) {
+	    int p,q,eval,left,right;
+	    switch(t->nodetype){
+		    case 0: p=getReg();
+			    fprintf(target_file,"READ\n");
+                            return 2;    
+			    break;
+		    case 1 : fprintf(target_file,"WRITE IN CONSOLE\n");
+			     return 1;
+			     break;
+		    case 2 : p=codeGen(t->left,target_file);
+			     q=codeGen(t->right,target_file);
+			     break;
+		    case 3 : left=codeGen(t->left,target_file);
+			     right=codeGen(t->right,target_file);
+			     fprintf(target_file, "ADD R%d, R%d\n", left,right);
+			     freeReg();
+        		     return left;
+		             break;
+		   case 4 :   left=codeGen(t->left,target_file);
+			     right=codeGen(t->right,target_file);
+                             fprintf(target_file, "SUB R%d, R%d\n", left,right);
+		             freeReg();
+			     return left;
+       	                     break;
+      		   case 5 :  left=codeGen(t->left,target_file);
+			     right=codeGen(t->right,target_file);
+                             fprintf(target_file, "MUL R%d, R%d\n", left,right);
+			     freeReg();
+			     return left;
+			     break;
+		   case 6 :  left=codeGen(t->left,target_file);
+			     right=codeGen(t->right,target_file);
+                             fprintf(target_file, "DIV R%d, R%d\n", left,right);
+			     freeReg(); 
+			     return left;
+			     break;
+	           case 7: break;
+                   case 8: eval=evaluate(t->right);
+			   p=getReg();
+			   fprintf(target_file,"MOV R%d, %d\n",p,eval);
+			   return p;
+	    }      
+}
+         

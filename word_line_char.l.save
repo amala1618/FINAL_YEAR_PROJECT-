@@ -1,0 +1,19 @@
+
+#include<stdio.h>
+int l=0, s=0, c=0;
+%}
+%%
+\n l++;
+([ ])+ s++; 
+. c++;     
+%%
+%option noyywrap 
+int main()
+{
+    yylex();
+     
+    printf("\nNo. of lines=%d", l); 
+    printf("\nNo. of spaces=%d", s);
+    printf("\nNo. of other characters=%d", c);
+     
+}
